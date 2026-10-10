@@ -11,7 +11,6 @@
       --grass: #71d778;
       --track: #4a5d74;
       --track2: #25364c;
-      --lane: rgba(255,255,255,0.18);
       --gold: #ffd45f;
       --text: #173d69;
       --pink: #ff7bb8;
@@ -19,6 +18,9 @@
       --blue: #6ec6ff;
       --green: #77e0a2;
       --purple: #b39dff;
+      --panel: rgba(255,255,255,0.76);
+      --shadow: rgba(15, 58, 114, 0.18);
+      --accent: #ff5e7d;
     }
 
     * { box-sizing: border-box; }
@@ -46,7 +48,7 @@
       overflow: hidden;
       box-shadow: 0 26px 70px rgba(10, 63, 125, 0.25);
       border: 6px solid rgba(255, 255, 255, 0.55);
-      background: linear-gradient(#8fe2ff, #d8f6ff 48%, #d5f4b3 48%, #9fe28d 100%);
+      background: linear-gradient(#8fe2ff, #d8f6ff 49%, #d5f4b3 49%, #9fe28d 100%);
       perspective: 1200px;
       user-select: none;
     }
@@ -60,7 +62,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 30;
+      z-index: 35;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .pill {
@@ -68,12 +72,12 @@
       border: 4px solid rgba(255,255,255,0.9);
       border-radius: 999px;
       font-weight: 900;
-      font-size: clamp(18px, 2vw, 26px);
-      letter-spacing: 0.05em;
-      padding: 10px 18px;
+      font-size: clamp(16px, 1.7vw, 24px);
+      letter-spacing: 0.04em;
+      padding: 10px 16px;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       box-shadow: 0 8px 20px rgba(32, 70, 122, 0.15);
     }
 
@@ -85,12 +89,19 @@
       border-radius: 50%;
       background: linear-gradient(#ffe16d, #ffba18);
       font-size: 18px;
+      box-shadow: inset 0 -3px 7px rgba(0,0,0,0.08);
+    }
+
+    .streak-box {
+      background: linear-gradient(135deg, #ff82aa, #ff5a7e);
+      color: white;
+      animation: pulse 0.8s ease-in-out infinite;
     }
 
     .race-meter {
       position: absolute;
       left: 50%;
-      top: 70px;
+      top: 74px;
       transform: translateX(-50%);
       width: min(78%, 700px);
       height: 30px;
@@ -98,7 +109,7 @@
       background: rgba(255,255,255,0.6);
       border: 4px solid rgba(255,255,255,0.8);
       box-shadow: 0 8px 16px rgba(18, 68, 135, 0.15);
-      z-index: 25;
+      z-index: 30;
       overflow: hidden;
     }
 
@@ -129,6 +140,51 @@
       border: 3px solid rgba(255,255,255,0.7);
       box-shadow: inset 0 6px 10px rgba(255,255,255,0.25);
     }
+
+    .panel {
+      position: absolute;
+      left: 30px;
+      top: 120px;
+      z-index: 30;
+      max-width: 260px;
+      background: rgba(255,255,255,0.7);
+      border: 4px solid rgba(255,255,255,0.8);
+      border-radius: 22px;
+      box-shadow: 0 12px 24px rgba(28, 78, 137, 0.12);
+      padding: 12px 14px;
+    }
+
+    .panel h4 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .powerups {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .power-btn {
+      border: none;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #8be3ff, #63c7ff);
+      color: #103b6b;
+      font-weight: 900;
+      font-size: 16px;
+      padding: 10px 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 14px rgba(27, 96, 166, 0.14);
+    }
+
+    .power-btn:hover { transform: translateY(-1px); }
+
+    .power-btn.boost { background: linear-gradient(180deg, #ffd670, #ffb43d); }
+    .power-btn.shield { background: linear-gradient(180deg, #9ef2b7, #5dd48d); }
+    .power-btn.double { background: linear-gradient(180deg, #d9b4ff, #a581ff); }
 
     .scene {
       position: absolute;
@@ -236,6 +292,7 @@
     .road-item.blue { background: linear-gradient(180deg, #81d4ff, #4e9eea); }
     .road-item.gold { background: linear-gradient(180deg, #ffd46a, #ffb72c); }
     .road-item.purple { background: linear-gradient(180deg, #d7a9ff, #8d71ff); }
+    .road-item.pink { background: linear-gradient(180deg, #ff99c7, #ff5ca6); }
 
     .player {
       position: absolute;
@@ -323,7 +380,7 @@
     .speech-bubble {
       position: absolute;
       left: 50%;
-      top: 100px;
+      top: 102px;
       transform: translateX(-50%);
       z-index: 25;
       background: rgba(255,255,255,0.8);
@@ -374,6 +431,7 @@
     }
 
     .choice {
+      position: relative;
       appearance: none;
       border: none;
       min-height: 150px;
@@ -437,6 +495,44 @@
       animation: shake 0.35s ease-in-out 2;
     }
 
+    .toast {
+      position: absolute;
+      right: 30px;
+      bottom: 30px;
+      max-width: 300px;
+      background: rgba(255,255,255,0.82);
+      border: 4px solid rgba(255,255,255,0.85);
+      border-radius: 22px;
+      padding: 12px 16px;
+      font-weight: 900;
+      box-shadow: 0 12px 22px rgba(11, 60, 120, 0.15);
+      z-index: 40;
+      animation: popIn 0.4s ease;
+    }
+
+    .skin-strip {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .skin-item {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.8);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+      cursor: pointer;
+      opacity: 0.5;
+    }
+
+    .skin-item.unlocked { opacity: 1; }
+
+    .skin-item.active {
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.85), 0 0 0 8px rgba(255,205,81,0.35);
+    }
+
     @keyframes sunGlow {
       from { box-shadow: 0 0 28px rgba(255, 190, 42, 0.75); }
       to { box-shadow: 0 0 60px rgba(255, 190, 42, 1), 0 0 90px rgba(255, 175, 75, 0.7); }
@@ -490,16 +586,27 @@
       75% { transform: translateX(-8px); }
     }
 
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
     @media (max-width: 760px) {
       .choices {
         grid-template-columns: repeat(2, minmax(120px, 1fr));
-        bottom: 30px;
+        bottom: 28px;
       }
       .track-wrap {
         width: min(82vw, 520px);
       }
       .target-word {
         min-width: 150px;
+      }
+      .panel {
+        top: 120px;
+        left: 14px;
+        right: 14px;
+        max-width: none;
       }
     }
   </style>
@@ -508,12 +615,27 @@
   <div class="game">
     <div class="hud">
       <div class="pill">Stars <span class="star" id="stars">0</span></div>
-      <div class="pill">Road <span id="level">1</span></div>
+      <div class="pill streak-box">Streak <span id="streak">0</span></div>
+      <div class="pill">Level <span id="level">1</span></div>
+      <div class="pill">Best <span id="bestScore">0</span></div>
     </div>
 
     <div class="race-meter">
       <div class="race-fill" id="raceFill"></div>
       <div class="race-finish">FINISH</div>
+    </div>
+
+    <div class="panel">
+      <h4>Power Ups</h4>
+      <div class="powerups">
+        <button class="power-btn boost" data-power="boost">⚡ Boost</button>
+        <button class="power-btn shield" data-power="shield">🛡 Shield</button>
+        <button class="power-btn double" data-power="double">✨ Double</button>
+      </div>
+      <h4 style="margin-top: 12px;">Rocket Skins</h4>
+      <div class="skin-strip" id="skins"></div>
+      <div style="margin-top: 12px; font-size: 15px; font-weight: 900;">Daily Challenge: <span id="dailyGoal">50</span></div>
+      <div style="margin-top: 8px; font-size: 15px; font-weight: 900;">Endless Mode: <span id="endlessStatus">Off</span></div>
     </div>
 
     <div class="scene">
@@ -533,7 +655,7 @@
       </div>
 
       <div class="player" id="player">
-        <div class="rocket">
+        <div class="rocket" id="rocketBody">
           <div class="body-shell"></div>
           <div class="window"></div>
           <div class="wing left"></div>
@@ -548,6 +670,23 @@
   </div>
 
   <script>
+    const STORAGE_KEY = 'readingRocketRace_v3';
+    const skinPalette = {
+      sun: ['#ffdd63', '#ff9f43', '#ff5d7b'],
+      moon: ['#d9d6ff', '#8d8cff', '#5a77ff'],
+      aqua: ['#9ae6ff', '#61d7ff', '#2eb6ff'],
+      green: ['#9df5b1', '#54d87b', '#31b65a'],
+      candy: ['#ffb4d9', '#ff7ab3', '#ff4d8d'],
+      fire: ['#ffc583', '#ff8f4f', '#ff5a3d']
+    };
+
+    const state = loadState();
+    let currentRound = null;
+    let roundIndex = 0;
+    let isAnswering = false;
+    let distance = 0;
+    let lastToastTimer = 0;
+
     const levels = [
       { prompt: 'Find the word', target: 'CAT', choices: ['CAT', 'DOG', 'SUN'], answer: 'CAT' },
       { prompt: 'Find the word', target: 'DOG', choices: ['CAT', 'DOG', 'BOX'], answer: 'DOG' },
@@ -563,31 +702,191 @@
       { prompt: 'Find the letter', target: 'R', choices: ['C', 'R', 'N'], answer: 'R' },
       { prompt: 'Find the word', target: 'MOON', choices: ['MOON', 'ROCK', 'RAIN'], answer: 'MOON' },
       { prompt: 'Find the word', target: 'PLAY', choices: ['PLAY', 'WORK', 'REST'], answer: 'PLAY' },
-      { prompt: 'Find the word', target: 'TREE', choices: ['TREE', 'ROCK', 'DOOR'], answer: 'TREE' }
+      { prompt: 'Find the word', target: 'TREE', choices: ['TREE', 'ROCK', 'DOOR'], answer: 'TREE' },
+      { prompt: 'Boss word', target: 'ROCKET', choices: ['ROCKET', 'GARDEN', 'WINDOW'], answer: 'ROCKET' },
+      { prompt: 'Boss word', target: 'BRIGHT', choices: ['LIGHT', 'BRIGHT', 'BLOOM'], answer: 'BRIGHT' },
+      { prompt: 'Boss word', target: 'READ', choices: ['READ', 'SWIM', 'RUN'], answer: 'READ' }
     ];
 
-    let stars = 0;
-    let level = 1;
-    let distance = 0;
-    let roundIndex = 0;
-    let currentRound = null;
-    let isAnswering = false;
-
     const starsEl = document.getElementById('stars');
+    const streakEl = document.getElementById('streak');
     const levelEl = document.getElementById('level');
+    const bestScoreEl = document.getElementById('bestScore');
     const targetWordEl = document.getElementById('targetWord');
     const messageEl = document.getElementById('message');
     const choicesEl = document.getElementById('choices');
     const raceFill = document.getElementById('raceFill');
     const roadObjectsEl = document.getElementById('roadObjects');
+    const skinsEl = document.getElementById('skins');
+    const dailyGoalEl = document.getElementById('dailyGoal');
+    const endlessStatusEl = document.getElementById('endlessStatus');
+    const rocketBody = document.getElementById('rocketBody');
 
-    function shuffle(array) {
-      const copy = [...array];
-      for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
+    function defaultState() {
+      return {
+        stars: 0,
+        best: 0,
+        streak: 0,
+        level: 1,
+        endless: false,
+        dailyStamp: '',
+        dailyProgress: 0,
+        powerups: {
+          boost: 0,
+          shield: 0,
+          double: 0
+        },
+        unlocked: ['sun'],
+        activeSkin: 'sun',
+        achievements: [],
+        leaderboard: []
+      };
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      try {
+        const parsed = JSON.parse(raw);
+        return { ...defaultState(), ...parsed, powerups: { ...defaultState().powerups, ...(parsed.powerups || {}) } };
+      } catch (e) {
+        return defaultState();
       }
-      return copy;
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function applyActiveSkin() {
+      const active = skinPalette[state.activeSkin] || skinPalette.sun;
+      rocketBody.style.filter = 'drop-shadow(0 12px 18px rgba(10, 43, 86, 0.22))';
+      const shell = rocketBody.querySelector('.body-shell');
+      const wingLeft = rocketBody.querySelector('.wing.left');
+      const wingRight = rocketBody.querySelector('.wing.right');
+      const flame = rocketBody.querySelector('.flame');
+      if (shell) shell.style.background = `linear-gradient(180deg, ${active[0]}, ${active[1]} 45%, ${active[2]} 100%)`;
+      if (wingLeft) wingLeft.style.background = `linear-gradient(#ffd56a, ${active[2]})`;
+      if (wingRight) wingRight.style.background = `linear-gradient(#ffd56a, ${active[2]})`;
+      if (flame) flame.style.background = `linear-gradient(180deg, #fff4ba, #ffb65c 42%, ${active[2]} 100%)`;
+    }
+
+    function updateHud() {
+      starsEl.textContent = String(state.stars);
+      streakEl.textContent = String(state.streak);
+      levelEl.textContent = String(state.level);
+      bestScoreEl.textContent = String(state.best);
+      dailyGoalEl.textContent = String(getDailyGoal());
+      endlessStatusEl.textContent = state.endless ? 'On' : 'Off';
+      updateDistanceMeter();
+      renderSkins();
+      applyActiveSkin();
+    }
+
+    function getDailyGoal() {
+      const today = new Date();
+      const base = 40 + (today.getDate() % 10) * 10;
+      return base;
+    }
+
+    function renderSkins() {
+      const skins = Object.keys(skinPalette);
+      skinsEl.innerHTML = '';
+      skins.forEach((name) => {
+        const item = document.createElement('div');
+        item.className = 'skin-item' + (state.unlocked.includes(name) ? ' unlocked' : '') + (state.activeSkin === name ? ' active' : '');
+        item.title = name;
+        const [a, b, c] = skinPalette[name];
+        item.style.background = `linear-gradient(135deg, ${a}, ${b}, ${c})`;
+        if (state.unlocked.includes(name)) {
+          item.addEventListener('click', () => {
+            state.activeSkin = name;
+            saveState();
+            applyActiveSkin();
+            renderSkins();
+          });
+        }
+        skinsEl.appendChild(item);
+      });
+    }
+
+    function addToast(message) {
+      const oldToast = document.querySelector('.toast');
+      if (oldToast) oldToast.remove();
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.querySelector('.game').appendChild(toast);
+      clearTimeout(lastToastTimer);
+      lastToastTimer = setTimeout(() => toast.remove(), 1800);
+    }
+
+    function unlockIfNeeded() {
+      const conditions = [
+        { skin: 'moon', min: 40 },
+        { skin: 'aqua', min: 90 },
+        { skin: 'green', min: 150 },
+        { skin: 'candy', min: 220 },
+        { skin: 'fire', min: 300 }
+      ];
+      conditions.forEach(({ skin, min }) => {
+        if (state.stars >= min && !state.unlocked.includes(skin)) {
+          state.unlocked.push(skin);
+          addToast(`Unlocked ${skin}!`);
+        }
+      });
+      if (state.stars >= 150 && !state.achievements.includes('reader')) {
+        state.achievements.push('reader');
+        addToast('Achievement: Reading Hero!');
+      }
+      if (state.streak >= 5 && !state.achievements.includes('streak')) {
+        state.achievements.push('streak');
+        addToast('Achievement: Streak Star!');
+      }
+      if (state.level >= 8 && !state.achievements.includes('pilot')) {
+        state.achievements.push('pilot');
+        addToast('Achievement: Rocket Pilot!');
+      }
+    }
+
+    function updateDistanceMeter() {
+      const pct = Math.min(distance, 100);
+      raceFill.style.width = pct + '%';
+    }
+
+    function spawnRoadObjects() {
+      roadObjectsEl.innerHTML = '';
+      const laneValues = [-120, 0, 130];
+      for (let i = 0; i < 6; i++) {
+        const item = document.createElement('div');
+        const colors = ['pink', 'green', 'blue', 'gold', 'purple'];
+        item.className = 'road-item ' + colors[Math.floor(Math.random() * colors.length)];
+        const lane = laneValues[Math.floor(Math.random() * laneValues.length)];
+        const scale = 0.82 + Math.random() * 0.8;
+        item.style.left = `calc(50% + ${lane}px)`;
+        item.style.top = `${30 + i * 11}%`;
+        item.style.setProperty('--scale', scale);
+        item.textContent = ['GO', 'WOW', 'YAY', 'ZIP', 'HOP', 'RUN'][Math.floor(Math.random() * 6)];
+        item.dataset.y = String(30 + i * 11);
+        roadObjectsEl.appendChild(item);
+      }
+    }
+
+    function animateRoad() {
+      const items = [...document.querySelectorAll('.road-item')];
+      items.forEach((item, index) => {
+        let y = Number(item.dataset.y || 30 + index * 11);
+        y += 0.85 + index * 0.1;
+        if (y > 110) {
+          y = 10;
+          item.style.left = `${50 + (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 120)}%`;
+          item.textContent = ['GO', 'WOW', 'YAY', 'ZIP', 'HOP', 'RUN'][Math.floor(Math.random() * 6)];
+        }
+        item.dataset.y = String(y);
+        item.style.top = `${y}%`;
+        item.style.opacity = y > 108 ? '0' : '1';
+      });
+      requestAnimationFrame(animateRoad);
     }
 
     function makeSparkles() {
@@ -613,48 +912,38 @@
       setTimeout(() => pop.remove(), 1200);
     }
 
-    function updateDistanceMeter() {
-      const pct = Math.min(distance, 100);
-      raceFill.style.width = `${pct}%`;
-      if (pct >= 100) {
-        messageEl.textContent = 'You won the reading race!';
-        setTimeout(() => {
-          distance = 0;
-          updateDistanceMeter();
-          buildRound();
-        }, 980);
+    function getDailyProgress() {
+      const today = new Date().toISOString().slice(0, 10);
+      if (state.dailyStamp !== today) {
+        state.dailyStamp = today;
+        state.dailyProgress = 0;
       }
+      return state.dailyProgress;
     }
 
-    function spawnRoadObjects() {
-      roadObjectsEl.innerHTML = '';
-      const laneValues = [-120, 0, 130];
-      for (let i = 0; i < 6; i++) {
-        const item = document.createElement('div');
-        item.className = 'road-item';
-        item.classList.add(['pink', 'green', 'blue', 'gold', 'purple'][Math.floor(Math.random() * 5)]);
-        const lane = laneValues[Math.floor(Math.random() * laneValues.length)];
-        const scale = 0.82 + Math.random() * 0.8;
-        const z = -20 - i * 30;
-        item.style.left = `calc(50% + ${lane}px)`;
-        item.style.top = `${29 + i * 11}%`;
-        item.style.setProperty('--scale', scale);
-        item.textContent = ['GO','WIN','YAY','ZIP','HOP','RUN'][Math.floor(Math.random() * 6)];
-        item.style.transform = `translate3d(-50%, 0, ${z}px) scale(${scale})`;
-        roadObjectsEl.appendChild(item);
+    function updateDailyProgress() {
+      const today = new Date().toISOString().slice(0, 10);
+      if (state.dailyStamp !== today) {
+        state.dailyStamp = today;
+        state.dailyProgress = 0;
       }
+      const goal = getDailyGoal();
+      dailyGoalEl.textContent = `${state.dailyProgress}/${goal}`;
     }
 
-    function buildRound() {
-      if (isAnswering) return;
-      const item = levels[(roundIndex + 1) % levels.length];
-      currentRound = item;
-      const options = shuffle(item.choices);
-
-      targetWordEl.textContent = item.target;
-      messageEl.textContent = item.prompt;
+    function chooseRound() {
+      const bossEvery = 5;
+      const useBoss = roundIndex > 0 && roundIndex % bossEvery === 0;
+      let pick = levels[Math.floor(Math.random() * levels.length)];
+      if (useBoss) {
+        const bossPool = levels.filter(item => item.prompt === 'Boss word');
+        if (bossPool.length) pick = bossPool[Math.floor(Math.random() * bossPool.length)];
+      }
+      currentRound = pick;
+      const options = shuffle(pick.choices);
+      targetWordEl.textContent = pick.target;
+      messageEl.textContent = pick.prompt;
       choicesEl.innerHTML = '';
-
       options.forEach((choice, idx) => {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -666,76 +955,131 @@
       });
     }
 
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function applyPower(power) {
+      if (power === 'boost') {
+        state.powerups.boost = 2;
+        addToast('Boost ready!');
+      }
+      if (power === 'shield') {
+        state.powerups.shield = 2;
+        addToast('Shield ready!');
+      }
+      if (power === 'double') {
+        state.powerups.double = 2;
+        addToast('Double stars!');
+      }
+      saveState();
+    }
+
+    document.querySelectorAll('[data-power]').forEach((btn) => {
+      btn.addEventListener('click', () => applyPower(btn.dataset.power));
+    });
+
     function handleAnswer(choice, btn) {
       if (isAnswering) return;
       isAnswering = true;
-
       const buttons = [...document.querySelectorAll('.choice')];
-      buttons.forEach(b => { b.disabled = true; });
+      buttons.forEach(b => b.disabled = true);
 
       const correct = choice === currentRound.answer;
       if (correct) {
-        stars += 10;
-        distance = Math.min(100, distance + 25);
-        level = Math.max(1, Math.floor((stars / 20)) + 1);
-        levelEl.textContent = level;
-        starsEl.textContent = stars;
-        messageEl.textContent = 'Hooray! You zoom ahead!';
+        let gain = 10;
+        if (state.powerups.boost > 0) gain += 8;
+        if (state.powerups.double > 0) gain *= 2;
+        if (state.powerups.boost > 0) state.powerups.boost -= 1;
+        if (state.powerups.double > 0) state.powerups.double -= 1;
+
+        state.streak += 1;
+        state.stars += gain;
+        state.best = Math.max(state.best, state.stars);
+
+        if (state.streak >= 3) {
+          messageEl.textContent = 'Hot streak!';
+          showComboPop(`${state.streak}x Combo!`, window.innerWidth / 2 - 80, window.innerHeight / 3);
+        } else {
+          messageEl.textContent = 'You did it!';
+        }
+
+        if (state.streak % 5 === 0) {
+          distance = Math.min(100, distance + 30);
+          makeSparkles();
+          showComboPop('BOOST!', window.innerWidth / 2 - 80, window.innerHeight / 3 + 30);
+          addToast('Milestone!');
+        } else {
+          distance = Math.min(100, distance + 18);
+        }
+
+        if (state.streak >= 8) {
+          state.endless = true;
+          endlessStatusEl.textContent = 'On';
+        }
+
+        state.level = Math.max(1, Math.floor(state.stars / 40) + 1);
+        unlockIfNeeded();
+        state.dailyProgress += 1;
+        updateDailyProgress();
+
+        if (distance >= 100) {
+          state.endless = true;
+          endlessStatusEl.textContent = 'On';
+          distance = 0;
+          messageEl.textContent = 'Finish line! Endless mode unlocked!';
+          addToast('Endless mode unlocked!');
+        }
+
+        updateHud();
+        saveState();
         makeSparkles();
-        showComboPop('BOOST!', window.innerWidth / 2 - 70, window.innerHeight / 3);
-        btn.style.transform = 'scale(1.04)';
-        updateDistanceMeter();
       } else {
-        distance = Math.max(0, distance - 12);
-        messageEl.textContent = 'Nice try! Keep racing!';
-        btn.classList.add('wrong');
-        setTimeout(() => btn.classList.remove('wrong'), 700);
-        updateDistanceMeter();
+        if (state.powerups.shield > 0) {
+          state.powerups.shield -= 1;
+          messageEl.textContent = 'Shield saved you!';
+          addToast('Shield used!');
+        } else {
+          state.streak = 0;
+          distance = Math.max(0, distance - 12);
+          messageEl.textContent = 'Nice try! Keep going!';
+          btn.classList.add('wrong');
+          setTimeout(() => btn.classList.remove('wrong'), 700);
+        }
+        updateHud();
+        saveState();
       }
 
       setTimeout(() => {
         roundIndex += 1;
         isAnswering = false;
-        buildRound();
+        chooseRound();
+        updateHud();
       }, 900);
     }
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        if (!currentRound) buildRound();
+    function initialLoad() {
+      const today = new Date().toISOString().slice(0, 10);
+      if (state.dailyStamp !== today) {
+        state.dailyStamp = today;
+        state.dailyProgress = 0;
       }
-    });
-
-    function tick() {
-      const items = [...document.querySelectorAll('.road-item')];
-      items.forEach((item, index) => {
-        const t = Number(item.dataset.t || 0);
-        item.dataset.t = String(t + 0.5 + index * 0.08);
-        const y = 32 + index * 10 + (t * 2.2);
-        const scale = 0.9 + ((t % 40) / 40) * 0.4;
-        item.style.top = `${y}%`;
-        item.style.opacity = y > 110 ? '0' : '1';
-        item.style.setProperty('--scale', scale);
-        if (y > 108) {
-          item.remove();
-          const replacement = document.createElement('div');
-          replacement.className = 'road-item';
-          replacement.classList.add(['pink', 'green', 'blue', 'gold', 'purple'][Math.floor(Math.random() * 5)]);
-          replacement.textContent = ['GO','WOW','YAY','ZIP','HOP'][Math.floor(Math.random()*5)];
-          replacement.style.left = `${50 + (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 110) }%`;
-          replacement.style.top = '20%';
-          replacement.style.setProperty('--scale', '0.8');
-          roadObjectsEl.appendChild(replacement);
-        }
-      });
-      requestAnimationFrame(tick);
+      state.best = Math.max(state.best || 0, state.stars || 0);
+      updateHud();
+      renderSkins();
+      applyActiveSkin();
+      spawnRoadObjects();
+      animateRoad();
+      chooseRound();
+      updateDailyProgress();
     }
 
-    spawnRoadObjects();
-    buildRound();
-    updateDistanceMeter();
-    requestAnimationFrame(tick);
+    initialLoad();
   </script>
 </body>
 </html>
