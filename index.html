@@ -3,95 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reading Rocket Adventure</title>
+  <title>Reading Rocket Race</title>
   <style>
     :root {
-      --sky-1: #73d9ff;
-      --sky-2: #baf0ff;
-      --grass: #67d680;
-      --path: #ffe29a;
-      --card1: #ff8ca1;
-      --card2: #ffb84d;
-      --card3: #8ec5ff;
-      --card4: #9ae39e;
-      --text: #1d3d65;
-      --shine: rgba(255,255,255,0.8);
-      --shadow: rgba(29, 61, 101, 0.18);
+      --sky1: #70d9ff;
+      --sky2: #dffbff;
+      --grass: #71d778;
+      --track: #4a5d74;
+      --track2: #25364c;
+      --lane: rgba(255,255,255,0.18);
+      --gold: #ffd45f;
+      --text: #173d69;
+      --pink: #ff7bb8;
+      --orange: #ffaf4d;
+      --blue: #6ec6ff;
+      --green: #77e0a2;
+      --purple: #b39dff;
     }
 
     * { box-sizing: border-box; }
-
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
-      font-family: "Trebuchet MS", "Arial Rounded MT Bold", sans-serif;
-      background: linear-gradient(var(--sky-1), var(--sky-2));
-      color: var(--text);
       overflow: hidden;
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", sans-serif;
+      background: linear-gradient(var(--sky1), var(--sky2));
+      color: var(--text);
     }
 
     body {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
     }
 
     .game {
       position: relative;
-      width: min(96vw, 1100px);
+      width: min(96vw, 1200px);
       height: min(92vh, 760px);
       border-radius: 32px;
       overflow: hidden;
-      box-shadow: 0 28px 60px rgba(27, 74, 145, 0.28);
-      border: 6px solid rgba(255,255,255,0.5);
-      background: linear-gradient(#8ee7ff, #d3f8ff 42%, #d8f5d3 42%, #b7ef93 100%);
+      box-shadow: 0 26px 70px rgba(10, 63, 125, 0.25);
+      border: 6px solid rgba(255, 255, 255, 0.55);
+      background: linear-gradient(#8fe2ff, #d8f6ff 48%, #d5f4b3 48%, #9fe28d 100%);
+      perspective: 1200px;
       user-select: none;
     }
 
     .hud {
       position: absolute;
-      top: 18px;
+      top: 16px;
       left: 0;
       right: 0;
+      padding: 0 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 26px;
-      z-index: 20;
+      z-index: 30;
     }
 
     .pill {
-      background: rgba(255,255,255,0.74);
-      border: 4px solid rgba(255,255,255,0.8);
-      box-shadow: 0 8px 22px rgba(16, 74, 122, 0.15);
+      background: rgba(255,255,255,0.8);
+      border: 4px solid rgba(255,255,255,0.9);
       border-radius: 999px;
-      padding: 10px 18px;
       font-weight: 900;
-      font-size: clamp(18px, 2vw, 28px);
-      letter-spacing: 0.06em;
-      display: flex;
+      font-size: clamp(18px, 2vw, 26px);
+      letter-spacing: 0.05em;
+      padding: 10px 18px;
+      display: inline-flex;
       align-items: center;
       gap: 10px;
-      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 20px rgba(32, 70, 122, 0.15);
     }
 
-    .star-badge {
+    .star {
       display: inline-grid;
       place-items: center;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      background: linear-gradient(#ffd96b, #ffb018);
-      box-shadow: inset 0 -4px 10px rgba(0,0,0,.08);
-      font-size: 22px;
+      background: linear-gradient(#ffe16d, #ffba18);
+      font-size: 18px;
     }
 
-    .streak-badge {
-      background: linear-gradient(#ff6b6b, #ff4757);
-      color: white;
-      animation: pulse 0.6s ease-in-out infinite;
+    .race-meter {
+      position: absolute;
+      left: 50%;
+      top: 70px;
+      transform: translateX(-50%);
+      width: min(78%, 700px);
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.6);
+      border: 4px solid rgba(255,255,255,0.8);
+      box-shadow: 0 8px 16px rgba(18, 68, 135, 0.15);
+      z-index: 25;
+      overflow: hidden;
+    }
+
+    .race-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #8de38e, #74d8ff 45%, #ffd66c 100%);
+      transition: width 0.25s ease;
+    }
+
+    .race-finish {
+      position: absolute;
+      right: 18px;
+      top: 8px;
+      bottom: 8px;
+      width: 54px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      border-radius: 12px;
+      background: linear-gradient(#ff7da7, #ff4d6b);
+      border: 3px solid rgba(255,255,255,0.7);
+      box-shadow: inset 0 6px 10px rgba(255,255,255,0.25);
     }
 
     .scene {
@@ -102,111 +138,162 @@
 
     .sun {
       position: absolute;
-      width: 165px;
-      height: 165px;
+      width: 140px;
+      height: 140px;
+      right: 80px;
+      top: 52px;
       border-radius: 50%;
-      right: 50px;
-      top: 55px;
-      background: radial-gradient(circle at 30% 30%, #fff4a6, #ffe064 35%, #ffbf1f 65%, #ff8d1a 100%);
-      box-shadow: 0 0 40px rgba(255, 188, 40, 0.8);
-      animation: glow 2s ease-in-out infinite alternate;
+      background: radial-gradient(circle at 30% 30%, #fff8b0, #ffe088 35%, #ffbf2b 65%, #ff8d16 100%);
+      box-shadow: 0 0 36px rgba(255, 193, 54, 0.8);
+      animation: sunGlow 2.1s ease-in-out infinite alternate;
     }
 
     .cloud {
       position: absolute;
-      background: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.8);
       border-radius: 999px;
-      box-shadow: 30px 10px 0 8px rgba(255,255,255,0.72), 70px 18px 0 12px rgba(255,255,255,0.73), 110px 4px 0 20px rgba(255,255,255,0.66);
       opacity: 0.9;
-      animation: drift 24s linear infinite alternate;
+      box-shadow: 26px 10px 0 8px rgba(255,255,255,0.72), 74px 20px 0 8px rgba(255,255,255,0.7), 110px 0 0 20px rgba(255,255,255,0.66);
+      animation: drift 22s linear infinite alternate;
     }
 
-    .cloud.one { width: 150px; height: 46px; left: 40px; top: 90px; }
-    .cloud.two { width: 190px; height: 54px; left: 280px; top: 150px; animation-delay: 1s; }
-    .cloud.three { width: 170px; height: 48px; right: 170px; top: 170px; animation-delay: 2s; }
+    .cloud.one { width: 160px; height: 44px; left: 35px; top: 120px; }
+    .cloud.two { width: 180px; height: 46px; left: 300px; top: 170px; animation-delay: 0.7s; }
+    .cloud.three { width: 160px; height: 44px; right: 180px; top: 170px; animation-delay: 1.3s; }
 
-    .ground {
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
-      height: 35%;
-      background: linear-gradient(#69d67f, #4abf60 38%, #399f46 100%);
-      border-top: 8px solid rgba(255,255,255,0.4);
-    }
-
-    .path {
-      position: absolute;
-      left: 19%; right: 19%; bottom: 0;
-      height: 18%;
-      background: linear-gradient(#ffe7a5, #ffd76b 40%, #ffc947 100%);
-      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-      box-shadow: inset 0 12px 0 rgba(255,255,255,0.35);
-      transform: perspective(500px) rotateX(56deg);
-      opacity: 0.9;
-    }
-
-    .character {
+    .track-wrap {
       position: absolute;
       left: 50%;
+      bottom: 0;
+      width: min(70vw, 720px);
+      height: 68%;
+      transform: translateX(-50%) rotateX(58deg);
+      transform-style: preserve-3d;
+      perspective: 900px;
+      z-index: 5;
+    }
+
+    .track {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 76%;
+      height: 100%;
+      transform: translateX(-50%);
+      border-radius: 24px 24px 0 0;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(10,18,27,0.15));
+      border: 6px solid rgba(255,255,255,0.28);
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.18);
+      background-image:
+        linear-gradient(90deg, transparent 0 32.5%, rgba(255,255,255,0.38) 32.5% 33.5%, transparent 33.5% 66.5%, rgba(255,255,255,0.38) 66.5% 67.5%, transparent 67.5%),
+        linear-gradient(180deg, #485f79, #26384a 22%, #1b2c3e 100%);
+    }
+
+    .road-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 28px,
+        rgba(255,255,255,0.78) 28px,
+        rgba(255,255,255,0.78) 54px
+      );
+      opacity: 0.7;
+      animation: roadMove 0.7s linear infinite;
+    }
+
+    .road-objects {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .road-item {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0) scale(var(--scale, 1));
+      display: grid;
+      place-items: center;
+      width: 104px;
+      height: 64px;
+      border-radius: 18px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: white;
+      text-shadow: 0 4px 0 rgba(20, 42, 80, 0.28);
+      box-shadow: 0 12px 18px rgba(20, 42, 80, 0.15);
+      border: 4px solid rgba(255,255,255,0.8);
+      background: linear-gradient(180deg, #ff8fa5, #ff5a72);
+      opacity: 0.98;
+      transition: filter 0.12s ease;
+    }
+
+    .road-item.green { background: linear-gradient(180deg, #76e3a5, #35c875); }
+    .road-item.blue { background: linear-gradient(180deg, #81d4ff, #4e9eea); }
+    .road-item.gold { background: linear-gradient(180deg, #ffd46a, #ffb72c); }
+    .road-item.purple { background: linear-gradient(180deg, #d7a9ff, #8d71ff); }
+
+    .player {
+      position: absolute;
       bottom: 16%;
+      left: 50%;
       width: 150px;
       height: 150px;
       transform: translateX(-50%);
-      z-index: 8;
-      animation: bounce 1.4s ease-in-out infinite;
-    }
-
-    .body {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
+      z-index: 12;
+      animation: hover 1.25s ease-in-out infinite;
     }
 
     .rocket {
-      position: relative;
-      width: 104px;
-      height: 122px;
-      transform: rotate(-7deg);
-      filter: drop-shadow(0 12px 15px rgba(0,0,0,0.18));
-    }
-
-    .rocket .window {
       position: absolute;
-      left: 50%;
-      top: 32px;
-      width: 38px;
-      height: 38px;
-      transform: translateX(-50%);
-      background: radial-gradient(circle at 35% 32%, #fff, #cce9ff 30%, #7ac5ff 58%, #2c7eea 100%);
-      border: 6px solid #ffffff;
-      border-radius: 50%;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.15);
+      inset: 0;
+      margin: auto;
+      width: 110px;
+      height: 124px;
+      transform: rotate(-8deg);
+      filter: drop-shadow(0 12px 18px rgba(10, 43, 86, 0.22));
     }
 
     .rocket .body-shell {
       position: absolute;
       left: 50%;
-      top: 28px;
-      width: 74px;
-      height: 74px;
+      top: 35px;
+      width: 72px;
+      height: 72px;
       transform: translateX(-50%);
-      background: linear-gradient(180deg, #ff7aa5, #ff5a8b 45%, #ff3c64 100%);
-      border-radius: 28% 28% 38% 38%;
-      border: 5px solid rgba(255,255,255,0.7);
+      border-radius: 28% 28% 36% 36%;
+      background: linear-gradient(180deg, #ff90b2, #ff4c7a 45%, #ff2e65 100%);
+      border: 5px solid rgba(255,255,255,0.75);
+    }
+
+    .rocket .window {
+      position: absolute;
+      left: 50%;
+      top: 50px;
+      width: 32px;
+      height: 32px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff, #d4f0ff 35%, #7fc7ff 60%, #2d7ee8 100%);
+      border: 6px solid rgba(255,255,255,0.85);
     }
 
     .rocket .wing {
       position: absolute;
-      bottom: 14px;
-      width: 22px;
-      height: 42px;
-      background: linear-gradient(#ffd768, #ffb33b);
-      border-radius: 12px 12px 18px 18px;
-      border: 5px solid rgba(255,255,255,0.7);
+      bottom: 10px;
+      width: 24px;
+      height: 40px;
+      border-radius: 14px 14px 18px 18px;
+      background: linear-gradient(#ffd56a, #ffad2a);
+      border: 5px solid rgba(255,255,255,0.72);
     }
 
-    .rocket .wing.left { left: 11px; transform: rotate(-18deg); }
-    .rocket .wing.right { right: 11px; transform: rotate(18deg); }
+    .rocket .wing.left { left: 12px; transform: rotate(-18deg); }
+    .rocket .wing.right { right: 12px; transform: rotate(18deg); }
 
     .rocket .flame {
       position: absolute;
@@ -215,237 +302,185 @@
       width: 18px;
       height: 30px;
       transform: translateX(-50%);
-      background: linear-gradient(180deg, #fff5b7, #ffb44c 36%, #ff5f2a 100%);
       clip-path: polygon(50% 100%, 0 0, 100% 0);
-      animation: flicker 0.2s ease-in-out infinite alternate;
+      background: linear-gradient(180deg, #fff4ba, #ffb65c 42%, #ff5d26 100%);
+      animation: flicker 0.22s ease-in-out infinite alternate;
     }
 
     .tag {
       position: absolute;
       left: 50%;
-      bottom: 11px;
+      bottom: 12px;
       transform: translateX(-50%);
       padding: 8px 12px;
       border-radius: 999px;
-      font-weight: 900;
-      font-size: 20px;
       background: rgba(255,255,255,0.75);
-      border: 4px solid rgba(255,255,255,0.9);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.1);
-    }
-
-    .target-wrap {
-      position: absolute;
-      z-index: 12;
-      left: 50%;
-      top: 140px;
-      transform: translateX(-50%);
-      text-align: center;
-      width: min(88vw, 620px);
-    }
-
-    .prompt {
-      font-size: clamp(20px, 2vw, 30px);
-      font-weight: 900;
-      background: rgba(255,255,255,0.7);
       border: 4px solid rgba(255,255,255,0.85);
-      border-radius: 22px;
-      display: inline-block;
-      padding: 10px 18px;
-      margin-bottom: 14px;
-      box-shadow: 0 18px 30px rgba(23, 77, 136, .12);
-    }
-
-    .target-word {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 220px;
-      min-height: 110px;
-      font-size: clamp(52px, 7vw, 96px);
       font-weight: 900;
-      letter-spacing: 0.12em;
-      color: #fff;
-      text-shadow: 0 8px 0 rgba(65, 115, 185, 0.75), 0 14px 30px rgba(40, 58, 153, 0.25);
-      background: linear-gradient(135deg, #ffb66d, #ff7d6a, #78b6ff);
-      border: 8px solid rgba(255,255,255,0.85);
-      border-radius: 26px;
-      padding: 8px 22px;
-      box-shadow: 0 18px 34px rgba(52, 95, 170, 0.25), inset 0 6px 20px rgba(255,255,255,0.3);
-      transform: rotateX(10deg) rotateY(-10deg);
-      animation: floatWord 2.4s ease-in-out infinite alternate;
-    }
-
-    .choices {
-      position: absolute;
-      left: 50%;
-      bottom: 120px;
-      transform: translateX(-50%);
-      width: min(100%, 820px);
-      display: grid;
-      grid-template-columns: repeat(3, minmax(180px, 1fr));
-      gap: 22px;
-      z-index: 14;
-      padding: 0 20px;
-    }
-
-    .choice {
-      position: relative;
-      border: none;
-      border-radius: 28px;
-      min-height: 170px;
-      padding: 18px 18px 12px;
-      font-size: clamp(30px, 3vw, 54px);
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      color: #fff;
-      text-shadow: 0 6px 0 rgba(20, 50, 90, 0.22);
-      box-shadow: 0 14px 20px rgba(35, 92, 144, 0.18), inset 0 8px 18px rgba(255,255,255,0.18);
-      cursor: pointer;
-      transition: transform 0.14s ease, filter 0.14s ease;
-      transform-style: preserve-3d;
-      animation: popIn 0.45s ease both;
-    }
-
-    .choice:hover {
-      transform: translateY(-6px) rotateX(8deg) rotateY(-8deg) scale(1.02);
-      filter: brightness(1.06);
-    }
-
-    .choice:active {
-      transform: translateY(2px) scale(0.98);
-    }
-
-    .choice:nth-child(1) { background: linear-gradient(180deg, #ff8ea9, #f44c74); }
-    .choice:nth-child(2) { background: linear-gradient(180deg, #ffbe70, #ff9f2d); }
-    .choice:nth-child(3) { background: linear-gradient(180deg, #90d8ff, #4e9be9); }
-    .choice:nth-child(4) { background: linear-gradient(180deg, #a2f0b6, #58d176); }
-    .choice:nth-child(5) { background: linear-gradient(180deg, #dca6ff, #8f69ff); }
-    .choice:nth-child(6) { background: linear-gradient(180deg, #ffd75a, #ffb243); }
-
-    .choice::before {
-      content: "";
-      position: absolute;
-      inset: 12px 12px auto 12px;
-      height: 36%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0.08));
-      border-radius: 20px 20px 50% 50%;
-      pointer-events: none;
+      font-size: 18px;
     }
 
     .speech-bubble {
       position: absolute;
       left: 50%;
-      top: 88px;
+      top: 100px;
       transform: translateX(-50%);
-      z-index: 18;
+      z-index: 25;
       background: rgba(255,255,255,0.8);
       border: 4px solid rgba(255,255,255,0.85);
-      border-radius: 24px;
+      border-radius: 22px;
+      padding: 12px 18px;
+      font-size: clamp(18px, 2vw, 30px);
       font-weight: 900;
-      font-size: clamp(18px, 2.1vw, 30px);
-      padding: 12px 22px;
-      box-shadow: 0 10px 18px rgba(30, 85, 160, 0.14);
-      max-width: 80%;
+      box-shadow: 0 12px 18px rgba(19, 69, 124, 0.15);
       text-align: center;
+      max-width: 84%;
+    }
+
+    .target-word {
+      position: absolute;
+      left: 50%;
+      top: 168px;
+      transform: translateX(-50%);
+      z-index: 25;
+      min-width: 180px;
+      min-height: 92px;
+      display: grid;
+      place-items: center;
+      border-radius: 26px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      font-size: clamp(52px, 6vw, 88px);
+      color: white;
+      text-shadow: 0 8px 0 rgba(60, 109, 180, 0.72), 0 14px 26px rgba(60, 92, 176, 0.24);
+      background: linear-gradient(135deg, #ffb163, #ff7d7c, #7cb8ff);
+      border: 8px solid rgba(255,255,255,0.85);
+      box-shadow: 0 18px 34px rgba(52, 95, 170, 0.25), inset 0 8px 18px rgba(255,255,255,0.25);
+      padding: 8px 18px;
+      animation: wobble 2.2s ease-in-out infinite alternate;
+    }
+
+    .choices {
+      position: absolute;
+      left: 50%;
+      bottom: 50px;
+      transform: translateX(-50%);
+      width: min(92%, 820px);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 18px;
+      z-index: 26;
+      padding: 0 14px;
+    }
+
+    .choice {
+      appearance: none;
+      border: none;
+      min-height: 150px;
+      border-radius: 28px;
+      padding: 10px 18px;
+      font-size: clamp(28px, 2.8vw, 52px);
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: white;
+      text-shadow: 0 6px 0 rgba(24, 61, 110, 0.2);
+      cursor: pointer;
+      box-shadow: 0 14px 20px rgba(21, 81, 145, 0.18), inset 0 8px 18px rgba(255,255,255,0.18);
+      transition: transform 0.15s ease, filter 0.15s ease;
+      animation: popIn 0.45s ease both;
+    }
+
+    .choice:nth-child(1) { background: linear-gradient(180deg, #ff9fc0, #ff5e82); }
+    .choice:nth-child(2) { background: linear-gradient(180deg, #ffc272, #ff9f2a); }
+    .choice:nth-child(3) { background: linear-gradient(180deg, #91d7ff, #4c9be8); }
+    .choice:nth-child(4) { background: linear-gradient(180deg, #a5efb3, #58d082); }
+    .choice:nth-child(5) { background: linear-gradient(180deg, #d8baff, #8d72ff); }
+    .choice:nth-child(6) { background: linear-gradient(180deg, #ffd75f, #ffb139); }
+
+    .choice:hover { transform: translateY(-5px) scale(1.02); filter: brightness(1.08); }
+    .choice:active { transform: translateY(2px) scale(0.98); }
+
+    .choice::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 12px;
+      height: 32%;
+      border-radius: 16px 16px 50% 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0.04));
+      pointer-events: none;
     }
 
     .sparkle {
       position: absolute;
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       border-radius: 50%;
-      background: radial-gradient(circle, #fff 25%, #ffe66d 60%, rgba(255,255,255,0) 100%);
-      animation: sparkle 1.6s ease-out forwards;
+      background: radial-gradient(circle, #fff 25%, #ffe97f 60%, rgba(255,255,255,0) 100%);
+      animation: sparkle 1.5s ease-out forwards;
       pointer-events: none;
-      z-index: 30;
+      z-index: 35;
     }
 
-    .confetti {
+    .combo-pop {
       position: absolute;
-      width: 12px;
-      height: 12px;
+      font-weight: 900;
+      color: #ff5f84;
+      text-shadow: 0 4px 0 rgba(255,255,255,0.7);
+      z-index: 40;
+      animation: comboPop 1.1s ease-out forwards;
       pointer-events: none;
-      z-index: 30;
-      animation: confettiFall 2.2s ease-out forwards;
-    }
-
-    .celebrate {
-      animation: celebrate 0.7s ease-out forwards;
     }
 
     .wrong {
       animation: shake 0.35s ease-in-out 2;
-      transform-origin: center;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
-    .combo-pop {
-      position: fixed;
-      pointer-events: none;
-      font-weight: 900;
-      z-index: 50;
-      animation: comboPop 1.2s ease-out forwards;
-    }
-
-    .streaker {
-      animation: streaker 0.5s ease-out infinite;
+    @keyframes sunGlow {
+      from { box-shadow: 0 0 28px rgba(255, 190, 42, 0.75); }
+      to { box-shadow: 0 0 60px rgba(255, 190, 42, 1), 0 0 90px rgba(255, 175, 75, 0.7); }
     }
 
     @keyframes drift {
-      from { transform: translateX(-12px); }
+      from { transform: translateX(-14px); }
       to { transform: translateX(18px); }
     }
 
-    @keyframes glow {
-      from { box-shadow: 0 0 30px rgba(255,188,40,0.8); }
-      to { box-shadow: 0 0 60px rgba(255,188,40,1), 0 0 90px rgba(255, 187, 78, 0.7); }
+    @keyframes roadMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(50px); }
     }
 
-    @keyframes bounce {
+    @keyframes hover {
       0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-8px); }
+      50% { transform: translateX(-50%) translateY(-10px); }
     }
 
     @keyframes flicker {
-      from { transform: translateX(-50%) scaleY(1); opacity: 0.95; }
+      from { transform: translateX(-50%) scaleY(1); opacity: 0.9; }
       to { transform: translateX(-50%) scaleY(1.25); opacity: 1; }
     }
 
-    @keyframes floatWord {
-      0% { transform: rotateX(6deg) rotateY(-8deg) translateY(0); }
-      100% { transform: rotateX(-6deg) rotateY(8deg) translateY(-10px); }
+    @keyframes wobble {
+      0% { transform: translateX(-50%) rotateX(8deg) rotateY(-8deg) translateY(0); }
+      100% { transform: translateX(-50%) rotateX(-8deg) rotateY(8deg) translateY(-8px); }
     }
 
     @keyframes popIn {
-      0% { opacity: 0; transform: translateY(26px) scale(0.8); }
+      0% { opacity: 0; transform: translateY(18px) scale(0.8); }
       100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes sparkle {
-      0% { opacity: 0; transform: scale(0.2) translateY(0); }
+      0% { opacity: 0; transform: scale(0.4) translateY(0); }
       20% { opacity: 1; }
-      100% { opacity: 0; transform: scale(1.5) translateY(-34px); }
+      100% { opacity: 0; transform: scale(1.7) translateY(-28px); }
     }
 
-    @keyframes confettiFall {
-      0% {
-        opacity: 1;
-        transform: translateY(0) translateX(0) rotateZ(0deg) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(280px) translateX(var(--tx, 0px)) rotateZ(360deg) scale(0);
-      }
-    }
-
-    @keyframes celebrate {
-      0% { transform: scale(1); }
-      30% { transform: scale(1.08); }
-      100% { transform: scale(1); }
+    @keyframes comboPop {
+      0% { opacity: 1; transform: translateY(0) scale(0.8); }
+      100% { opacity: 0; transform: translateY(-70px) scale(1.7); }
     }
 
     @keyframes shake {
@@ -455,62 +490,30 @@
       75% { transform: translateX(-8px); }
     }
 
-    @keyframes comboPop {
-      0% {
-        opacity: 1;
-        transform: translateY(0) scale(0.6);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-80px) scale(1.8);
-      }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-    }
-
-    @keyframes streaker {
-      0%, 100% { filter: drop-shadow(0 0 0px #ffeb3b); }
-      50% { filter: drop-shadow(0 0 12px #ffeb3b); }
-    }
-
     @media (max-width: 760px) {
-      .game {
-        border-radius: 20px;
-      }
-
       .choices {
-        grid-template-columns: repeat(2, minmax(130px, 1fr));
-        bottom: 80px;
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        bottom: 30px;
       }
-
-      .choice {
-        min-height: 130px;
-        font-size: clamp(28px, 6vw, 44px);
+      .track-wrap {
+        width: min(82vw, 520px);
       }
-
-      .target-wrap {
-        top: 120px;
-      }
-
       .target-word {
-        min-width: 160px;
-      }
-
-      .speech-bubble {
-        top: 72px;
+        min-width: 150px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="game" aria-live="polite">
+  <div class="game">
     <div class="hud">
-      <div class="pill">Stars <span class="star-badge" id="stars">0</span></div>
-      <div class="pill">Streak <span class="star-badge streak-badge" id="streak">0</span></div>
-      <div class="pill">Level <span id="level">1</span></div>
+      <div class="pill">Stars <span class="star" id="stars">0</span></div>
+      <div class="pill">Road <span id="level">1</span></div>
+    </div>
+
+    <div class="race-meter">
+      <div class="race-fill" id="raceFill"></div>
+      <div class="race-finish">FINISH</div>
     </div>
 
     <div class="scene">
@@ -519,74 +522,64 @@
       <div class="cloud two"></div>
       <div class="cloud three"></div>
 
-      <div class="speech-bubble" id="message">Ready to read? Let's go!</div>
+      <div class="speech-bubble" id="message">Ready to read and race?</div>
+      <div class="target-word" id="targetWord">CAT</div>
 
-      <div class="target-wrap">
-        <div class="prompt" id="prompt">Find the word</div>
-        <div class="target-word" id="targetWord">CAT</div>
+      <div class="track-wrap">
+        <div class="track">
+          <div class="road-lines"></div>
+          <div class="road-objects" id="roadObjects"></div>
+        </div>
       </div>
 
-      <div class="character" id="character">
-        <div class="body">
-          <div class="rocket">
-            <div class="body-shell"></div>
-            <div class="window"></div>
-            <div class="wing left"></div>
-            <div class="wing right"></div>
-            <div class="flame"></div>
-          </div>
+      <div class="player" id="player">
+        <div class="rocket">
+          <div class="body-shell"></div>
+          <div class="window"></div>
+          <div class="wing left"></div>
+          <div class="wing right"></div>
+          <div class="flame"></div>
         </div>
         <div class="tag">GO!</div>
       </div>
 
       <div class="choices" id="choices"></div>
-
-      <div class="ground"></div>
-      <div class="path"></div>
     </div>
   </div>
 
   <script>
     const levels = [
-      { prompt: 'Find the word', target: 'CAT', choices: ['CAT', 'DOG', 'SUN'], answer: 'CAT', sound: 440 },
-      { prompt: 'Find the word', target: 'DOG', choices: ['CAT', 'DOG', 'BOX'], answer: 'DOG', sound: 494 },
-      { prompt: 'Find the word', target: 'SUN', choices: ['SUN', 'RUN', 'MAP'], answer: 'SUN', sound: 523 },
-      { prompt: 'Find the word', target: 'FISH', choices: ['FISH', 'BIRD', 'TREE'], answer: 'FISH', sound: 587 },
-      { prompt: 'Find the word', target: 'BOOK', choices: ['TOY', 'BOOK', 'BALL'], answer: 'BOOK', sound: 659 },
-      { prompt: 'Find the word', target: 'RED', choices: ['RED', 'BLUE', 'GREEN'], answer: 'RED', sound: 740 },
-      { prompt: 'Find the word', target: 'BLUE', choices: ['GREEN', 'BLUE', 'YELLOW'], answer: 'BLUE', sound: 830 },
-      { prompt: 'Find the word', target: 'JUMP', choices: ['JUMP', 'HIDE', 'SLEEP'], answer: 'JUMP', sound: 932 },
-      { prompt: 'Find the word', target: 'STAR', choices: ['STAR', 'MOON', 'RAIN'], answer: 'STAR', sound: 1047 },
-      { prompt: 'Find the word', target: 'BALL', choices: ['BALL', 'LAMP', 'CLOUD'], answer: 'BALL', sound: 1175 },
-      { prompt: 'Find the letter', target: 'M', choices: ['S', 'M', 'T'], answer: 'M', sound: 660 },
-      { prompt: 'Find the letter', target: 'A', choices: ['D', 'A', 'P'], answer: 'A', sound: 550 },
-      { prompt: 'Find the letter', target: 'B', choices: ['B', 'L', 'F'], answer: 'B', sound: 495 },
-      { prompt: 'Find the letter', target: 'R', choices: ['C', 'R', 'N'], answer: 'R', sound: 784 },
-      { prompt: 'Find the letter', target: 'S', choices: ['H', 'S', 'K'], answer: 'S', sound: 698 },
-      { prompt: 'Find the letter', target: 'E', choices: ['E', 'W', 'V'], answer: 'E', sound: 392 },
-      { prompt: 'Find the letter', target: 'O', choices: ['O', 'Q', 'U'], answer: 'O', sound: 880 },
-      { prompt: 'Find the word', target: 'TREE', choices: ['TREE', 'ROCK', 'DOOR'], answer: 'TREE', sound: 1109 },
-      { prompt: 'Find the word', target: 'MOON', choices: ['MOON', 'STAR', 'ROCK'], answer: 'MOON', sound: 1245 },
-      { prompt: 'Find the word', target: 'PLAY', choices: ['PLAY', 'WORK', 'REST'], answer: 'PLAY', sound: 622 }
+      { prompt: 'Find the word', target: 'CAT', choices: ['CAT', 'DOG', 'SUN'], answer: 'CAT' },
+      { prompt: 'Find the word', target: 'DOG', choices: ['CAT', 'DOG', 'BOX'], answer: 'DOG' },
+      { prompt: 'Find the word', target: 'SUN', choices: ['SUN', 'RUN', 'MAP'], answer: 'SUN' },
+      { prompt: 'Find the word', target: 'BOOK', choices: ['TOY', 'BOOK', 'BALL'], answer: 'BOOK' },
+      { prompt: 'Find the word', target: 'FISH', choices: ['FISH', 'BIRD', 'TREE'], answer: 'FISH' },
+      { prompt: 'Find the word', target: 'RED', choices: ['RED', 'BLUE', 'GREEN'], answer: 'RED' },
+      { prompt: 'Find the word', target: 'JUMP', choices: ['JUMP', 'HIDE', 'SLEEP'], answer: 'JUMP' },
+      { prompt: 'Find the word', target: 'STAR', choices: ['STAR', 'MOON', 'RAIN'], answer: 'STAR' },
+      { prompt: 'Find the letter', target: 'M', choices: ['S', 'M', 'T'], answer: 'M' },
+      { prompt: 'Find the letter', target: 'A', choices: ['D', 'A', 'P'], answer: 'A' },
+      { prompt: 'Find the letter', target: 'B', choices: ['B', 'L', 'F'], answer: 'B' },
+      { prompt: 'Find the letter', target: 'R', choices: ['C', 'R', 'N'], answer: 'R' },
+      { prompt: 'Find the word', target: 'MOON', choices: ['MOON', 'ROCK', 'RAIN'], answer: 'MOON' },
+      { prompt: 'Find the word', target: 'PLAY', choices: ['PLAY', 'WORK', 'REST'], answer: 'PLAY' },
+      { prompt: 'Find the word', target: 'TREE', choices: ['TREE', 'ROCK', 'DOOR'], answer: 'TREE' }
     ];
 
     let stars = 0;
     let level = 1;
-    let streak = 0;
-    let currentRound = null;
+    let distance = 0;
     let roundIndex = 0;
-    let comboMultiplier = 1;
+    let currentRound = null;
     let isAnswering = false;
 
-    const choicesEl = document.getElementById('choices');
-    const targetWordEl = document.getElementById('targetWord');
-    const promptEl = document.getElementById('prompt');
-    const messageEl = document.getElementById('message');
     const starsEl = document.getElementById('stars');
     const levelEl = document.getElementById('level');
-    const streakEl = document.getElementById('streak');
-    const characterEl = document.getElementById('character');
-    const sceneEl = document.querySelector('.scene');
+    const targetWordEl = document.getElementById('targetWord');
+    const messageEl = document.getElementById('message');
+    const choicesEl = document.getElementById('choices');
+    const raceFill = document.getElementById('raceFill');
+    const roadObjectsEl = document.getElementById('roadObjects');
 
     function shuffle(array) {
       const copy = [...array];
@@ -599,49 +592,14 @@
 
     function makeSparkles() {
       for (let i = 0; i < 16; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.className = 'sparkle';
-        sparkle.style.left = `${Math.random() * 80 + 10}%`;
-        sparkle.style.top = `${Math.random() * 55 + 12}%`;
-        sparkle.style.animationDelay = `${Math.random() * 0.4}s`;
-        sceneEl.appendChild(sparkle);
-        setTimeout(() => sparkle.remove(), 1800);
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = `${Math.random() * 80 + 10}%`;
+        s.style.top = `${Math.random() * 55 + 15}%`;
+        s.style.animationDelay = `${Math.random() * 0.3}s`;
+        document.querySelector('.scene').appendChild(s);
+        setTimeout(() => s.remove(), 1500);
       }
-    }
-
-    function makeConfetti() {
-      const colors = ['#ff6b9d', '#ffa502', '#26de81', '#42a5f5', '#fcbf1e', '#ff5252'];
-      for (let i = 0; i < 28; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.left = `${Math.random() * 100}%`;
-        confetti.style.top = '-20px';
-        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-        confetti.style.setProperty('--tx', `${(Math.random() - 0.5) * 200}px`);
-        sceneEl.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 2400);
-      }
-    }
-
-    function playTone(freq, duration = 180) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      try {
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        gain.gain.value = 0.08;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        setTimeout(() => {
-          osc.stop();
-          ctx.close();
-        }, duration);
-      } catch (e) {}
     }
 
     function showComboPop(text, x, y) {
@@ -650,29 +608,57 @@
       pop.textContent = text;
       pop.style.left = `${x}px`;
       pop.style.top = `${y}px`;
-      pop.style.fontSize = '32px';
-      pop.style.fontWeight = '900';
-      pop.style.color = '#ff6b9d';
-      pop.style.textShadow = '0 4px 12px rgba(255, 107, 157, 0.6)';
+      pop.style.fontSize = '30px';
       document.body.appendChild(pop);
-      setTimeout(() => pop.remove(), 1300);
+      setTimeout(() => pop.remove(), 1200);
+    }
+
+    function updateDistanceMeter() {
+      const pct = Math.min(distance, 100);
+      raceFill.style.width = `${pct}%`;
+      if (pct >= 100) {
+        messageEl.textContent = 'You won the reading race!';
+        setTimeout(() => {
+          distance = 0;
+          updateDistanceMeter();
+          buildRound();
+        }, 980);
+      }
+    }
+
+    function spawnRoadObjects() {
+      roadObjectsEl.innerHTML = '';
+      const laneValues = [-120, 0, 130];
+      for (let i = 0; i < 6; i++) {
+        const item = document.createElement('div');
+        item.className = 'road-item';
+        item.classList.add(['pink', 'green', 'blue', 'gold', 'purple'][Math.floor(Math.random() * 5)]);
+        const lane = laneValues[Math.floor(Math.random() * laneValues.length)];
+        const scale = 0.82 + Math.random() * 0.8;
+        const z = -20 - i * 30;
+        item.style.left = `calc(50% + ${lane}px)`;
+        item.style.top = `${29 + i * 11}%`;
+        item.style.setProperty('--scale', scale);
+        item.textContent = ['GO','WIN','YAY','ZIP','HOP','RUN'][Math.floor(Math.random() * 6)];
+        item.style.transform = `translate3d(-50%, 0, ${z}px) scale(${scale})`;
+        roadObjectsEl.appendChild(item);
+      }
     }
 
     function buildRound() {
       if (isAnswering) return;
-      const pool = shuffle(levels);
-      const item = pool[roundIndex % pool.length] || pool[0];
+      const item = levels[(roundIndex + 1) % levels.length];
       currentRound = item;
-
       const options = shuffle(item.choices);
-      promptEl.textContent = item.prompt;
-      targetWordEl.textContent = item.target;
 
+      targetWordEl.textContent = item.target;
+      messageEl.textContent = item.prompt;
       choicesEl.innerHTML = '';
+
       options.forEach((choice, idx) => {
         const btn = document.createElement('button');
-        btn.className = 'choice';
         btn.type = 'button';
+        btn.className = 'choice';
         btn.textContent = choice;
         btn.style.animationDelay = `${idx * 120}ms`;
         btn.addEventListener('click', () => handleAnswer(choice, btn));
@@ -684,85 +670,72 @@
       if (isAnswering) return;
       isAnswering = true;
 
-      const isCorrect = choice === currentRound.answer;
       const buttons = [...document.querySelectorAll('.choice')];
+      buttons.forEach(b => { b.disabled = true; });
 
-      buttons.forEach(b => { b.disabled = true; b.style.opacity = 0.8; });
-
-      if (isCorrect) {
-        streak++;
-        comboMultiplier = Math.min(4, 1 + Math.floor(streak / 5));
-        const basePoints = 10;
-        const earnedStars = basePoints * comboMultiplier;
-        stars += earnedStars;
-        level = Math.max(1, Math.min(99, Math.ceil(stars / 40) + 1));
-        starsEl.textContent = stars;
-        streakEl.textContent = streak;
+      const correct = choice === currentRound.answer;
+      if (correct) {
+        stars += 10;
+        distance = Math.min(100, distance + 25);
+        level = Math.max(1, Math.floor((stars / 20)) + 1);
         levelEl.textContent = level;
-
-        // Combo messages
-        let message = 'Awesome!';
-        if (streak === 3) { message = '3 Row! 🔥'; }
-        else if (streak === 5) { message = '5 Row! 🌟'; }
-        else if (streak === 10) { message = '10 Row! 💥'; }
-        else if (streak === 20) { message = '20 Row! LEGENDARY! 👑'; }
-        else if (streak >= 15) { message = `${streak} ROW! INCREDIBLE! ⚡`; }
-        else if (streak >= 10) { message = `${streak} ROW! AMAZING! 🎉`; }
-
-        messageEl.textContent = message;
-        playTone(currentRound.sound, 180);
-        setTimeout(() => playTone(currentRound.sound + 220, 160), 120);
-
-        characterEl.classList.add('celebrate');
-        btn.style.transform = 'scale(1.06)';
+        starsEl.textContent = stars;
+        messageEl.textContent = 'Hooray! You zoom ahead!';
         makeSparkles();
-
-        if (streak % 5 === 0 && streak > 0) {
-          makeConfetti();
-          showComboPop(`${streak}x COMBO!`, window.innerWidth / 2 - 80, window.innerHeight / 3);
-        }
-
-        if (streak % 3 === 0 && streak > 0) {
-          characterEl.classList.add('streaker');
-        }
+        showComboPop('BOOST!', window.innerWidth / 2 - 70, window.innerHeight / 3);
+        btn.style.transform = 'scale(1.04)';
+        updateDistanceMeter();
       } else {
-        streak = 0;
-        streakEl.textContent = '0';
-        comboMultiplier = 1;
-        messageEl.textContent = 'Good try! Keep it up!';
+        distance = Math.max(0, distance - 12);
+        messageEl.textContent = 'Nice try! Keep racing!';
         btn.classList.add('wrong');
-        playTone(220, 190);
-        setTimeout(() => {
-          btn.classList.remove('wrong');
-        }, 700);
+        setTimeout(() => btn.classList.remove('wrong'), 700);
+        updateDistanceMeter();
       }
 
-      characterEl.classList.remove('streaker');
       setTimeout(() => {
         roundIndex += 1;
-        if (isCorrect) {
-          if (roundIndex % 4 === 0) {
-            messageEl.textContent = 'Level up! Next challenge! 🚀';
-          }
-        }
         isAnswering = false;
         buildRound();
-      }, 950);
+      }, 900);
     }
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        if (!currentRound) {
-          buildRound();
-        }
+        if (!currentRound) buildRound();
       }
     });
 
+    function tick() {
+      const items = [...document.querySelectorAll('.road-item')];
+      items.forEach((item, index) => {
+        const t = Number(item.dataset.t || 0);
+        item.dataset.t = String(t + 0.5 + index * 0.08);
+        const y = 32 + index * 10 + (t * 2.2);
+        const scale = 0.9 + ((t % 40) / 40) * 0.4;
+        item.style.top = `${y}%`;
+        item.style.opacity = y > 110 ? '0' : '1';
+        item.style.setProperty('--scale', scale);
+        if (y > 108) {
+          item.remove();
+          const replacement = document.createElement('div');
+          replacement.className = 'road-item';
+          replacement.classList.add(['pink', 'green', 'blue', 'gold', 'purple'][Math.floor(Math.random() * 5)]);
+          replacement.textContent = ['GO','WOW','YAY','ZIP','HOP'][Math.floor(Math.random()*5)];
+          replacement.style.left = `${50 + (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 110) }%`;
+          replacement.style.top = '20%';
+          replacement.style.setProperty('--scale', '0.8');
+          roadObjectsEl.appendChild(replacement);
+        }
+      });
+      requestAnimationFrame(tick);
+    }
+
+    spawnRoadObjects();
     buildRound();
-    starsEl.textContent = stars;
-    streakEl.textContent = streak;
-    levelEl.textContent = level;
+    updateDistanceMeter();
+    requestAnimationFrame(tick);
   </script>
 </body>
 </html>
