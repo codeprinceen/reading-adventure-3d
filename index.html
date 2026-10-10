@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reading Rocket Adventure</title>
+  <style>
+    :root {
+      --sky-1: #73d9ff;
+      --sky-2: #baf0ff;
+      --grass: #67d680;
+      --path: #ffe29a;
+      --card1: #ff8ca1;
+      --card2: #ffb84d;
+      --card3: #8ec5ff;
+      --card4: #9ae39e;
+      --text: #1d3d65;
+      --shine: rgba(255,255,255,0.8);
+      --shadow: rgba(29, 61, 101, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", sans-serif;
+      background: linear-gradient(var(--sky-1), var(--sky-2));
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .game {
+      position: relative;
+      width: min(96vw, 1100px);
+      height: min(92vh, 760px);
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 28px 60px rgba(27, 74, 145, 0.28);
+      border: 6px solid rgba(255,255,255,0.5);
+      background: linear-gradient(#8ee7ff, #d3f8ff 42%, #d8f5d3 42%, #b7ef93 100%);
+      user-select: none;
+    }
+
+    .hud {
+      position: absolute;
+      top: 18px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 26px;
+      z-index: 20;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.74);
+      border: 4px solid rgba(255,255,255,0.8);
+      box-shadow: 0 8px 22px rgba(16, 74, 122, 0.15);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 900;
+      font-size: clamp(18px, 2vw, 28px);
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(8px);
+    }
+
+    .star-badge {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(#ffd96b, #ffb018);
+      box-shadow: inset 0 -4px 10px rgba(0,0,0,.08);
+      font-size: 22px;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .sun {
+      position: absolute;
+      width: 165px;
+      height: 165px;
+      border-radius: 50%;
+      right: 50px;
+      top: 55px;
+      background: radial-gradient(circle at 30% 30%, #fff4a6, #ffe064 35%, #ffbf1f 65%, #ff8d1a 100%);
+      box-shadow: 0 0 40px rgba(255, 188, 40, 0.8);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255,255,255,0.85);
+      border-radius: 999px;
+      box-shadow: 30px 10px 0 8px rgba(255,255,255,0.72), 70px 18px 0 12px rgba(255,255,255,0.73), 110px 4px 0 20px rgba(255,255,255,0.66);
+      opacity: 0.9;
+      animation: drift 24s linear infinite alternate;
+    }
+
+    .cloud.one { width: 150px; height: 46px; left: 40px; top: 90px; }
+    .cloud.two { width: 190px; height: 54px; left: 280px; top: 150px; animation-delay: 1s; }
+    .cloud.three { width: 170px; height: 48px; right: 170px; top: 170px; animation-delay: 2s; }
+
+    .ground {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 35%;
+      background: linear-gradient(#69d67f, #4abf60 38%, #399f46 100%);
+      border-top: 8px solid rgba(255,255,255,0.4);
+    }
+
+    .path {
+      position: absolute;
+      left: 19%; right: 19%; bottom: 0;
+      height: 18%;
+      background: linear-gradient(#ffe7a5, #ffd76b 40%, #ffc947 100%);
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      box-shadow: inset 0 12px 0 rgba(255,255,255,0.35);
+      transform: perspective(500px) rotateX(56deg);
+      opacity: 0.9;
+    }
+
+    .character {
+      position: absolute;
+      left: 50%;
+      bottom: 16%;
+      width: 150px;
+      height: 150px;
+      transform: translateX(-50%);
+      z-index: 8;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+
+    .body {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+
+    .rocket {
+      position: relative;
+      width: 104px;
+      height: 122px;
+      transform: rotate(-7deg);
+      filter: drop-shadow(0 12px 15px rgba(0,0,0,0.18));
+    }
+
+    .rocket .window {
+      position: absolute;
+      left: 50%;
+      top: 32px;
+      width: 38px;
+      height: 38px;
+      transform: translateX(-50%);
+      background: radial-gradient(circle at 35% 32%, #fff, #cce9ff 30%, #7ac5ff 58%, #2c7eea 100%);
+      border: 6px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.15);
+    }
+
+    .rocket .body-shell {
+      position: absolute;
+      left: 50%;
+      top: 28px;
+      width: 74px;
+      height: 74px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #ff7aa5, #ff5a8b 45%, #ff3c64 100%);
+      border-radius: 28% 28% 38% 38%;
+      border: 5px solid rgba(255,255,255,0.7);
+    }
+
+    .rocket .wing {
+      position: absolute;
+      bottom: 14px;
+      width: 22px;
+      height: 42px;
+      background: linear-gradient(#ffd768, #ffb33b);
+      border-radius: 12px 12px 18px 18px;
+      border: 5px solid rgba(255,255,255,0.7);
+    }
+
+    .rocket .wing.left { left: 11px; transform: rotate(-18deg); }
+    .rocket .wing.right { right: 11px; transform: rotate(18deg); }
+
+    .rocket .flame {
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      width: 18px;
+      height: 30px;
+      transform: translateX(-50%);
+      background: linear-gradient(180deg, #fff5b7, #ffb44c 36%, #ff5f2a 100%);
+      clip-path: polygon(50% 100%, 0 0, 100% 0);
+      animation: flicker 0.2s ease-in-out infinite alternate;
+    }
+
+    .tag {
+      position: absolute;
+      left: 50%;
+      bottom: 11px;
+      transform: translateX(-50%);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 20px;
+      background: rgba(255,255,255,0.75);
+      border: 4px solid rgba(255,255,255,0.9);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+    }
+
+    .target-wrap {
+      position: absolute;
+      z-index: 12;
+      left: 50%;
+      top: 140px;
+      transform: translateX(-50%);
+      text-align: center;
+      width: min(88vw, 620px);
+    }
+
+    .prompt {
+      font-size: clamp(20px, 2vw, 30px);
+      font-weight: 900;
+      background: rgba(255,255,255,0.7);
+      border: 4px solid rgba(255,255,255,0.85);
+      border-radius: 22px;
+      display: inline-block;
+      padding: 10px 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 18px 30px rgba(23, 77, 136, .12);
+    }
+
+    .target-word {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 220px;
+      min-height: 110px;
+      font-size: clamp(52px, 7vw, 96px);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow: 0 8px 0 rgba(65, 115, 185, 0.75), 0 14px 30px rgba(40, 58, 153, 0.25);
+      background: linear-gradient(135deg, #ffb66d, #ff7d6a, #78b6ff);
+      border: 8px solid rgba(255,255,255,0.85);
+      border-radius: 26px;
+      padding: 8px 22px;
+      box-shadow: 0 18px 34px rgba(52, 95, 170, 0.25), inset 0 6px 20px rgba(255,255,255,0.3);
+      transform: rotateX(10deg) rotateY(-10deg);
+      animation: floatWord 2.4s ease-in-out infinite alternate;
+    }
+
+    .choices {
+      position: absolute;
+      left: 50%;
+      bottom: 120px;
+      transform: translateX(-50%);
+      width: min(100%, 820px);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 22px;
+      z-index: 14;
+      padding: 0 20px;
+    }
+
+    .choice {
+      position: relative;
+      border: none;
+      border-radius: 28px;
+      min-height: 170px;
+      padding: 18px 18px 12px;
+      font-size: clamp(30px, 3vw, 54px);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: #fff;
+      text-shadow: 0 6px 0 rgba(20, 50, 90, 0.22);
+      box-shadow: 0 14px 20px rgba(35, 92, 144, 0.18), inset 0 8px 18px rgba(255,255,255,0.18);
+      cursor: pointer;
+      transition: transform 0.14s ease, filter 0.14s ease;
+      transform-style: preserve-3d;
+      animation: popIn 0.45s ease both;
+    }
+
+    .choice:hover {
+      transform: translateY(-6px) rotateX(8deg) rotateY(-8deg) scale(1.02);
+      filter: brightness(1.06);
+    }
+
+    .choice:active {
+      transform: translateY(2px) scale(0.98);
+    }
+
+    .choice:nth-child(1) { background: linear-gradient(180deg, #ff8ea9, #f44c74); }
+    .choice:nth-child(2) { background: linear-gradient(180deg, #ffbe70, #ff9f2d); }
+    .choice:nth-child(3) { background: linear-gradient(180deg, #90d8ff, #4e9be9); }
+    .choice:nth-child(4) { background: linear-gradient(180deg, #a2f0b6, #58d176); }
+    .choice:nth-child(5) { background: linear-gradient(180deg, #dca6ff, #8f69ff); }
+    .choice:nth-child(6) { background: linear-gradient(180deg, #ffd75a, #ffb243); }
+
+    .choice::before {
+      content: "";
+      position: absolute;
+      inset: 12px 12px auto 12px;
+      height: 36%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0.08));
+      border-radius: 20px 20px 50% 50%;
+      pointer-events: none;
+    }
+
+    .speech-bubble {
+      position: absolute;
+      left: 50%;
+      top: 88px;
+      transform: translateX(-50%);
+      z-index: 18;
+      background: rgba(255,255,255,0.8);
+      border: 4px solid rgba(255,255,255,0.85);
+      border-radius: 24px;
+      font-weight: 900;
+      font-size: clamp(18px, 2.1vw, 30px);
+      padding: 12px 22px;
+      box-shadow: 0 10px 18px rgba(30, 85, 160, 0.14);
+      max-width: 80%;
+      text-align: center;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 25%, #ffe66d 60%, rgba(255,255,255,0) 100%);
+      animation: sparkle 1.6s ease-out forwards;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    .celebrate {
+      animation: celebrate 0.7s ease-out forwards;
+    }
+
+    .wrong {
+      animation: shake 0.35s ease-in-out 2;
+      transform-origin: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes drift {
+      from { transform: translateX(-12px); }
+      to { transform: translateX(18px); }
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 30px rgba(255,188,40,0.8); }
+      to { box-shadow: 0 0 60px rgba(255,188,40,1), 0 0 90px rgba(255, 187, 78, 0.7); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-8px); }
+    }
+
+    @keyframes flicker {
+      from { transform: translateX(-50%) scaleY(1); opacity: 0.95; }
+      to { transform: translateX(-50%) scaleY(1.25); opacity: 1; }
+    }
+
+    @keyframes floatWord {
+      0% { transform: rotateX(6deg) rotateY(-8deg) translateY(0); }
+      100% { transform: rotateX(-6deg) rotateY(8deg) translateY(-10px); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(26px) scale(0.8); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes sparkle {
+      0% { opacity: 0; transform: scale(0.2) translateY(0); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: scale(1.5) translateY(-34px); }
+    }
+
+    @keyframes celebrate {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      50% { transform: translateX(10px); }
+      75% { transform: translateX(-8px); }
+    }
+
+    @media (max-width: 760px) {
+      .game {
+        border-radius: 20px;
+      }
+
+      .choices {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+        bottom: 80px;
+      }
+
+      .choice {
+        min-height: 130px;
+        font-size: clamp(28px, 6vw, 44px);
+      }
+
+      .target-wrap {
+        top: 120px;
+      }
+
+      .target-word {
+        min-width: 160px;
+      }
+
+      .speech-bubble {
+        top: 72px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game" aria-live="polite">
+    <div class="hud">
+      <div class="pill">Stars <span class="star-badge" id="stars">0</span></div>
+      <div class="pill">Level <span id="level">1</span></div>
+    </div>
+
+    <div class="scene">
+      <div class="sun"></div>
+      <div class="cloud one"></div>
+      <div class="cloud two"></div>
+      <div class="cloud three"></div>
+
+      <div class="speech-bubble" id="message">Ready to read? Tap start!</div>
+
+      <div class="target-wrap">
+        <div class="prompt" id="prompt">Find the word</div>
+        <div class="target-word" id="targetWord">CAT</div>
+      </div>
+
+      <div class="character" id="character">
+        <div class="body">
+          <div class="rocket">
+            <div class="body-shell"></div>
+            <div class="window"></div>
+            <div class="wing left"></div>
+            <div class="wing right"></div>
+            <div class="flame"></div>
+          </div>
+        </div>
+        <div class="tag">GO!</div>
+      </div>
+
+      <div class="choices" id="choices"></div>
+
+      <div class="ground"></div>
+      <div class="path"></div>
+    </div>
+  </div>
+
+  <script>
+    const levels = [
+      { prompt: 'Find the word', target: 'CAT', choices: ['CAT', 'DOG', 'SUN'], answer: 'CAT' },
+      { prompt: 'Find the word', target: 'DOG', choices: ['CAT', 'DOG', 'BOX'], answer: 'DOG' },
+      { prompt: 'Find the word', target: 'SUN', choices: ['SUN', 'RUN', 'MAP'], answer: 'SUN' },
+      { prompt: 'Find the word', target: 'FISH', choices: ['FISH', 'BIRD', 'TREE'], answer: 'FISH' },
+      { prompt: 'Find the word', target: 'BOOK', choices: ['TOY', 'BOOK', 'BALL'], answer: 'BOOK' },
+      { prompt: 'Find the word', target: 'RED', choices: ['RED', 'BLUE', 'GREEN'], answer: 'RED' },
+      { prompt: 'Find the word', target: 'BLUE', choices: ['GREEN', 'BLUE', 'YELLOW'], answer: 'BLUE' },
+      { prompt: 'Find the word', target: 'JUMP', choices: ['JUMP', 'HIDE', 'SLEEP'], answer: 'JUMP' },
+      { prompt: 'Find the word', target: 'STAR', choices: ['STAR', 'MOON', 'RAIN'], answer: 'STAR' },
+      { prompt: 'Find the word', target: 'BALL', choices: ['BALL', 'LAMP', 'CLOUD'], answer: 'BALL' },
+      { prompt: 'Find the letter', target: 'M', choices: ['S', 'M', 'T'], answer: 'M' },
+      { prompt: 'Find the letter', target: 'A', choices: ['D', 'A', 'P'], answer: 'A' },
+      { prompt: 'Find the letter', target: 'B', choices: ['B', 'L', 'F'], answer: 'B' },
+      { prompt: 'Find the letter', target: 'R', choices: ['C', 'R', 'N'], answer: 'R' },
+      { prompt: 'Find the letter', target: 'S', choices: ['H', 'S', 'K'], answer: 'S' }
+    ];
+
+    let stars = 0;
+    let level = 1;
+    let currentRound = null;
+    let roundIndex = 0;
+
+    const choicesEl = document.getElementById('choices');
+    const targetWordEl = document.getElementById('targetWord');
+    const promptEl = document.getElementById('prompt');
+    const messageEl = document.getElementById('message');
+    const starsEl = document.getElementById('stars');
+    const levelEl = document.getElementById('level');
+    const characterEl = document.getElementById('character');
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function makeSparkles() {
+      const container = document.querySelector('.scene');
+      for (let i = 0; i < 16; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        sparkle.style.left = `${Math.random() * 80 + 10}%`;
+        sparkle.style.top = `${Math.random() * 55 + 12}%`;
+        sparkle.style.animationDelay = `${Math.random() * 0.4}s`;
+        container.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 1800);
+      }
+    }
+
+    function playTone(freq, duration = 180) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.value = 0.08;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      setTimeout(() => {
+        osc.stop();
+        ctx.close();
+      }, duration);
+    }
+
+    function buildRound() {
+      const pool = shuffle(levels);
+      const item = pool[roundIndex % pool.length] || pool[0];
+      currentRound = item;
+
+      const options = shuffle(item.choices);
+      promptEl.textContent = item.prompt;
+      targetWordEl.textContent = item.target;
+
+      choicesEl.innerHTML = '';
+      options.forEach((choice, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.type = 'button';
+        btn.textContent = choice;
+        btn.style.animationDelay = `${idx * 120}ms`;
+        btn.addEventListener('click', () => handleAnswer(choice, btn));
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(choice, btn) {
+      const isCorrect = choice === currentRound.answer;
+      const buttons = [...document.querySelectorAll('.choice')];
+
+      buttons.forEach(b => { b.disabled = true; b.style.opacity = 0.8; });
+
+      if (isCorrect) {
+        stars += 10;
+        level = Math.max(1, Math.min(99, Math.ceil(stars / 40) + 1));
+        starsEl.textContent = stars;
+        levelEl.textContent = level;
+        messageEl.textContent = 'Hooray! You read it!';
+        playTone(660, 180);
+        setTimeout(() => playTone(830, 160), 120);
+        characterEl.classList.add('celebrate');
+        btn.style.transform = 'scale(1.06)';
+        makeSparkles();
+      } else {
+        messageEl.textContent = 'Nice try! Keep practicing!';
+        btn.classList.add('wrong');
+        playTone(220, 190);
+        setTimeout(() => {
+          btn.classList.remove('wrong');
+        }, 700);
+      }
+
+      setTimeout(() => {
+        roundIndex += 1;
+        if (isCorrect) {
+          if (roundIndex % 3 === 0) {
+            messageEl.textContent = 'Level up! More reading fun!';
+          }
+        }
+        buildRound();
+      }, 950);
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (!currentRound) {
+          buildRound();
+        }
+      }
+    });
+
+    buildRound();
+    starsEl.textContent = stars;
+    levelEl.textContent = level;
+    messageEl.textContent = 'Ready to read? Let\'s go!';
+  </script>
+</body>
+</html>
